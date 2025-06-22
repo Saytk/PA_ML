@@ -1,5 +1,5 @@
 # predictor/serve_api.py
-import logger
+#import logger
 from fastapi import FastAPI, Query
 from crypto_forecast_ml.data_loader import load_crypto_data
 from crypto_forecast_ml.features.technical_indicators import add_technical_indicators
