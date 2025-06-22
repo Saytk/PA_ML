@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import ta
+#import ta
 
 
 def add_all_features(df: pd.DataFrame) -> pd.DataFrame:

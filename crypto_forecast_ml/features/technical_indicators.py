@@ -1,7 +1,7 @@
 # features/technical_indicators.py
 
 import pandas as pd
-import ta
+#import ta
 
 
 def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
