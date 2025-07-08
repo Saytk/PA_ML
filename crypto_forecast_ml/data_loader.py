@@ -74,6 +74,7 @@ def load_crypto_data_custom_range(symbol: str, start_date: str, end_date: str, m
     """
 
     logger.info(f"📥 Running query for range: {start_date} to {end_date}")
+    logger.info(f"📥 Running query : {query}")
     df = client.query(query).to_dataframe()
     logger.info(f"📊 Loaded {len(df)} rows.")
     return df

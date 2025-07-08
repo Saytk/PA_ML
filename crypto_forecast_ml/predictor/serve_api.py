@@ -11,7 +11,8 @@ import traceback
 app = FastAPI()
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime,timezone
+from zoneinfo import ZoneInfo
 
 # ✅ Initialise le logger proprement
 logging.basicConfig(level=logging.INFO)
@@ -34,25 +35,38 @@ def predict_latest(symbol: str = Query("BTCUSDT", description="Crypto symbol")):
         traceback.print_exc()  # Affiche la stack trace complète
         return {"error": str(e)}
 
+
+
+
+paris = ZoneInfo("Europe/Paris")
+FMT_IN = "%Y-%m-%dT%H:%M"           # 2025-07-06T09:15
+
 @app.get("/load-data")
 def load_data(
-    symbol: str = Query(..., description="Crypto symbol, e.g. BTCUSDT"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD")
+    symbol: str = Query(...),
+    start_date: str = Query(..., description="YYYY-MM-DDTHH:MM 🇫🇷"),
+    end_date:   str = Query(..., description="YYYY-MM-DDTHH:MM 🇫🇷")
 ):
-    try:
-        logger.info(f"📥 /load-data called with: symbol={symbol}, start={start_date}, end={end_date}")
-        datetime.strptime(start_date, "%Y-%m-%d")
-        datetime.strptime(end_date, "%Y-%m-%d")
+    # 👉 parse + convert -> UTC
+    start_utc = (datetime.strptime(start_date, FMT_IN)
+                           .replace(tzinfo=paris)
+                           .astimezone(timezone.utc))
+    end_utc   = (datetime.strptime(end_date,   FMT_IN)
+                           .replace(tzinfo=paris)
+                           .astimezone(timezone.utc))
 
-        df = load_crypto_data_custom_range(symbol=symbol, start_date=start_date, end_date=end_date)
-        result = df.to_dict(orient="records")
-        return {"symbol": symbol, "start_date": start_date, "end_date": end_date, "data": result}
+    df = load_crypto_data_custom_range(symbol=symbol,
+                                       start_date=start_utc,
+                                       end_date=end_utc)
 
-    except Exception as e:
-        logger.error("🔥 Error in /load-data")
-        traceback.print_exc()
-        return {"error": str(e)}
+    return {
+        "symbol": symbol,
+        "start_date": start_utc.isoformat(),
+        "end_date":   end_utc.isoformat(),
+        "data": df.to_dict(orient="records")
+    }
+
+
 
 
 
