@@ -70,3 +70,4 @@ def load_data(
 
 
 
+#uvicorn crypto_forecast_ml.predictor.serve_api:app --port 8006 --reload
